@@ -1,52 +1,81 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private ActionBar actionBar;
-    [SerializeField] private Spawner spawner;
+    [Header("Зависимости")]
+    [SerializeField, Tooltip("Для добавления фигур в слот")]
+    private ActionBar _actionBar;
 
-    [NonSerialized] public static GameManager Instance;
+    [SerializeField, Tooltip("Для генерации и управления фигурами")]
+    private Spawner _spawner;
 
-    private void Awake() => Instance = this;
+    public static GameManager Instance { get; private set; }
 
-    private void Start() => StartLevel();
+    private void Awake()
+    {
+        Instance = this;
+
+        if (_actionBar == null)
+            Debug.LogError($"Не задан ActionBar в инспекторе.");
+        if (_spawner == null)
+            Debug.LogError($"Не задан Spawner в инспекторе.");
+    }
+
+    private void Start()
+    {
+        StartLevel();
+    }
 
     private void StartLevel()
     {
-        spawner.GenerateField();
+        if (_spawner == null)
+            return;
+
+        _spawner.GenerateField();
     }
 
     public void OnFigureClicked(Figure figure)
     {
-        actionBar.AddFigure(figure);
-        spawner.RemoveFigure(figure);
-        CheckWin();
+        if (figure == null)
+            return;
+
+        if (_actionBar == null || !_actionBar.AddFigure(figure))
+            return;
+
+        if (_spawner != null)
+            _spawner.RemoveFigure(figure);
+
+        CheckWinCondition();
+    }
+
+    private void CheckWinCondition()
+    {
+        if (_spawner != null && _spawner.IsEmpty)
+        {
+            WinGame();
+        }
     }
 
     public void LoseGame()
     {
-        UIManager.Instance.ShowLose();
-        Debug.Log("Lose");
+        UIManager.Instance?.ShowLoseScreen();
     }
 
     private void WinGame()
     {
-        UIManager.Instance.ShowWin();
-        Debug.Log("Win");
-    }
-
-    private void CheckWin()
-    {
-        if(spawner.IsEmpty)
-            WinGame();
+        UIManager.Instance?.ShowWinScreen();
     }
 
     public void ShuffleField()
     {
-        spawner.Shuffle();
-        actionBar.ClearAllSlots();
+        if (_spawner == null)
+            return;
+
+        _spawner.Shuffle();
+
+        if (_actionBar != null)
+            _actionBar.ClearAllSlots();
     }
 
     public void RestartScene()

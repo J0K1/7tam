@@ -3,41 +3,52 @@ using UnityEngine;
 
 public class Figure : MonoBehaviour
 {
+    [Header("Sprite Renderers")]
     [SerializeField] private SpriteRenderer _iconRenderer;
     [SerializeField] private SpriteRenderer _shapeRenderer;
 
-    [NonSerialized] public bool isClickable = true;
+    private const string ShapesFolder = "Shapes";
+    private const string IconsFolder = "Icons";
+
+    public bool IsClickable { get; set; } = true;
     public FigureData Data { get; private set; }
 
     public void Initialize(FigureData newData)
     {
-        Data = newData;
+        Data = newData ?? throw new ArgumentNullException(nameof(newData));
 
-        string shapePath = $"Shapes/{Data.shape}_{Data.color}";
-        Sprite shapeSprite = Resources.Load<Sprite>(shapePath);
-        if (shapeSprite == null)
-        {
-            Debug.Log("Shape sprite not found");
-            Debug.Log("Shape path: " + shapePath);
-        }
-        _shapeRenderer.sprite = shapeSprite;
+        _shapeRenderer.sprite = LoadSprite(
+            $"{ShapesFolder}/{Data.Shape}_{Data.Color}",
+            $"Shape sprite not found for path: '{ShapesFolder}/{Data.Shape}_{Data.Color}'"
+        );
 
-        string iconPath = $"Icons/{Data.animal}";
-        Sprite iconSprite = Resources.Load<Sprite>(iconPath);
-        if (iconSprite == null)
-        {
-            Debug.Log("Icon sprite not found");
-            Debug.Log("Icon path: " + iconPath);
-
-        }
-        _iconRenderer.sprite = iconSprite;
+        _iconRenderer.sprite = LoadSprite(
+            $"{IconsFolder}/{Data.Animal}",
+            $"Icon sprite not found for path: '{IconsFolder}/{Data.Animal}'"
+        );
     }
 
     private void OnMouseDown()
     {
-        if (!isClickable)
+        if (!IsClickable)
             return;
 
         GameManager.Instance.OnFigureClicked(this);
+    }
+
+    private Sprite LoadSprite(string resourcePath, string warningMessage)
+    {
+        if (string.IsNullOrEmpty(resourcePath))
+        {
+            Debug.LogWarning($"LoadSprite: путь не может быть пустым.");
+            return null;
+        }
+
+        Sprite sprite = Resources.Load<Sprite>(resourcePath);
+        if (sprite == null)
+        {
+            Debug.LogWarning(warningMessage);
+        }
+        return sprite;
     }
 }

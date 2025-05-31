@@ -1,18 +1,27 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Serialization;
 
 [Serializable]
 public class FigureData
 {
-    public AnimalType animal;
-    public ShapeType shape;
-    public ShapeColor color;
+    [Tooltip("“ип животного, отображаемого на фигуре")]
+    public AnimalType Animal;
 
-    public bool IsPertialMatch(FigureData other) => 
-        this.animal == other.animal && this.color == other.color;
+    [Tooltip("‘орма фигуры")]
+    public ShapeType Shape;
+
+    [Tooltip("÷вет формы")]
+    public ShapeColor Color;
+
+    public bool IsPartialMatch(FigureData other)
+    {
+        if (other == null)
+            return false;
+
+        return Animal == other.Animal &&
+           Shape == other.Shape &&
+           Color == other.Color;
+    }
 }
 
 public enum AnimalType
@@ -20,7 +29,12 @@ public enum AnimalType
     Cat,
     Dog,
     Rabbit,
-    Panda
+    Panda,
+    Bear,
+    Koala,
+    Monkey,
+    Mouse,
+    Tiger
 }
 
 public enum ShapeType

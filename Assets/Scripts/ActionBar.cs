@@ -1,82 +1,149 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class ActionBar : MonoBehaviour
 {
-    [SerializeField] private ActionBarSlot[] slots;
+    [Header("Настройки слотов")]
+    [SerializeField, Tooltip("Слоты, в которые будут добавляться фигуры")]
+    private ActionBarSlot[] _slots;
+
+    [Header("Аудио")]
+    [SerializeField, Tooltip("Звук при совпадении трёх фигур")]
+    private AudioSource _matchAudioSource;
+
+    [SerializeField, Tooltip("Звук при добавлении фигуры в слот")]
+    private AudioSource _addAudioSource;
 
     private readonly List<ActionBarSlot> _filledSlots = new List<ActionBarSlot>();
 
-    public void AddFigure(Figure figure)
+    private bool _isLocked = false;
+
+    public bool AddFigure(Figure figure)
     {
-        CheckLose();
+        if (_isLocked)
+            return false;
 
-        ActionBarSlot slotToFill = slots[_filledSlots.Count];
-        slotToFill.Initialize(figure.Data);
-        slotToFill.gameObject.SetActive(true);
+        if (figure == null)
+        {
+            Debug.LogError($"Figure == null.");
+            return false;
+        }
 
-        _filledSlots.Add(slotToFill);
+        if (_filledSlots.Count >= _slots.Length)
+        {
+            HandleLose();
+            return false;
+        }
 
-        CheckLastThreeMatch();
-        CheckLose();
+        ActionBarSlot targetSlot = _slots[_filledSlots.Count];
+        targetSlot.Initialize(figure.Data);
+        targetSlot.gameObject.SetActive(true);
+
+        _filledSlots.Add(targetSlot);
+        PlayAddSound();
+
+        CheckForMatch();
+        CheckForLose();
+
+        return true;
     }
 
-    private void CheckLastThreeMatch()
+    private void CheckForMatch()
     {
-        if (_filledSlots.Count < 3) return;
+        if (_filledSlots.Count < 3)
+            return;
 
-        var lastThree = _filledSlots.Skip(_filledSlots.Count - 3).Take(3).ToList();
-        FigureData firstData = lastThree[0].Data;
+        int count = _filledSlots.Count;
+        ActionBarSlot slotA = _filledSlots[count - 3];
+        ActionBarSlot slotB = _filledSlots[count - 2];
+        ActionBarSlot slotC = _filledSlots[count - 1];
 
-        bool allMatch = lastThree.All(s =>
-            s.Data.animal == firstData.animal &&
-            s.Data.color == firstData.color && 
-            s.Data.shape == firstData.shape);
+        FigureData dataA = slotA.Data;
+        FigureData dataB = slotB.Data;
+        FigureData dataC = slotC.Data;
 
-        if (allMatch)
-        {
-            foreach (var matchedSlot in lastThree)
-            {
-                matchedSlot.Clear();
-                _filledSlots.Remove(matchedSlot);
-            }
+        bool isMatch = dataA.IsPartialMatch(dataB) && dataA.IsPartialMatch(dataC);
 
-            RepackSlots();
-            Debug.Log("Match");
-        }
+        if (!isMatch)
+            return;
+
+        slotA.Clear();
+        slotB.Clear();
+        slotC.Clear();
+
+        _filledSlots.RemoveAt(count - 1);
+        _filledSlots.RemoveAt(count - 2);
+        _filledSlots.RemoveAt(count - 3);
+
+        RepackSlots();
+        PlayMatchSound();
     }
 
     private void RepackSlots()
     {
-        for (int currentIndex = 0; currentIndex < slots.Length; currentIndex++)
+        for (int currentIndex = 0; currentIndex < _slots.Length; currentIndex++)
         {
             if (currentIndex < _filledSlots.Count)
             {
-                var slot = _filledSlots[currentIndex];
+                ActionBarSlot slot = _filledSlots[currentIndex];
                 slot.transform.SetSiblingIndex(currentIndex);
             }
             else
             {
-                slots[currentIndex].Clear();
+                _slots[currentIndex].Clear();
             }
         }
     }
 
-    private void CheckLose()
+    private void CheckForLose()
     {
-        if (_filledSlots.Count >= slots.Length)
-        {
-            GameManager.Instance.LoseGame();
-        }
+        if (_filledSlots.Count < _slots.Length)
+            return;
+
+        HandleLose();
+    }
+
+    private void HandleLose()
+    {
+        if (_isLocked)
+            return;
+
+        _isLocked = true;
+        GameManager.Instance?.LoseGame();
     }
 
     public void ClearAllSlots()
     {
-        foreach (var slot in slots)
+        foreach (ActionBarSlot slot in _slots)
         {
             slot.Clear();
         }
+
         _filledSlots.Clear();
+        _isLocked = false;
+    }
+
+    private void PlayAddSound()
+    {
+        if (_addAudioSource != null)
+        {
+            _addAudioSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"AddAudioSource не установлен.");
+        }
+    }
+
+    private void PlayMatchSound()
+    {
+        if (_matchAudioSource != null)
+        {
+            _matchAudioSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"MatchAudioSource не установлен.");
+        }
     }
 }

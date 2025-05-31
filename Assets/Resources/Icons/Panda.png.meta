@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b39834263970e1845b33a08125ccbee9
+guid: e11fd909e21cbb34484609a8136f3e25
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3730704270707125474
-    second: png-transparent-snow-panda-illustration-giant-panda-emojipedia-sticker-iphone-emoji-mammal-face-carnivoran-thumbnail-removebg-preview_0
+      213: -7046177747628980013
+    second: iy7pkidg_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: png-transparent-snow-panda-illustration-giant-panda-emojipedia-sticker-iphone-emoji-mammal-face-carnivoran-thumbnail-removebg-preview_0
+      name: iy7pkidg_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 8
-        width: 360
-        height: 340
+        x: 15
+        y: 31
+        width: 570
+        height: 538
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e13187e5b30e93cc0800000000000000
-      internalID: -3730704270707125474
+      spriteID: 3d80058bba2f63e90800000000000000
+      internalID: -7046177747628980013
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      png-transparent-snow-panda-illustration-giant-panda-emojipedia-sticker-iphone-emoji-mammal-face-carnivoran-thumbnail-removebg-preview_0: -3730704270707125474
+      iy7pkidg_0: -7046177747628980013
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
